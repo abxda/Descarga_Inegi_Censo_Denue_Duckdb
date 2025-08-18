@@ -20,7 +20,7 @@ def build_database():
     denue_geoparquet_files = glob.glob(os.path.join(config.DENUE_GEOPARQUET_DIR, '*.geoparquet'))
     if denue_geoparquet_files:
         # DuckDB puede leer una lista de archivos parquet directamente
-        con.execute(f"CREATE TABLE denue AS SELECT * FROM read_parquet({denue_geoparquet_files});")
+        con.execute(f"CREATE TABLE denue AS SELECT * FROM read_parquet({denue_geoparquet_files}, union_by_name=True);")
         print("Tabla 'denue' creada exitosamente.")
     else:
         print("ADVERTENCIA: No se encontraron archivos GeoParquet de DENUE.")
@@ -32,8 +32,8 @@ def build_database():
 
     if censo_parquet_files and mg_geoparquet_files:
         # Crear tablas temporales para censo y manzanas
-        con.execute(f"CREATE OR REPLACE TEMP TABLE temp_censo AS SELECT * FROM read_parquet({censo_parquet_files});")
-        con.execute(f"CREATE OR REPLACE TEMP TABLE temp_manzanas AS SELECT * FROM read_parquet({mg_geoparquet_files});")
+        con.execute(f"CREATE OR REPLACE TEMP TABLE temp_censo AS SELECT * FROM read_parquet({censo_parquet_files}, union_by_name=True);")
+        con.execute(f"CREATE OR REPLACE TEMP TABLE temp_manzanas AS SELECT * FROM read_parquet({mg_geoparquet_files}, union_by_name=True);")
 
         # Construir la clave CVEGEO en la tabla de censo
         con.execute("""

@@ -86,16 +86,18 @@ def process_censo_y_marco_geo():
         censo_zip_path = download_utils.download_file(censo_url, config.CENSO_RAW_ZIP_DIR)
 
         if censo_zip_path:
-            # Extraer el CSV
-            # La ruta interna del CSV varía, así que buscamos el .csv dentro del zip
-            censo_extract_path = os.path.join(config.CENSO_CSV_DIR, estado_str)
-            download_utils.extract_zip(censo_zip_path, censo_extract_path)
+            # Construir la ruta relativa esperada del archivo CSV de datos principal
+            folder_in_zip = f"ageb_mza_urbana_{estado_str}_cpv2020"
+            csv_in_zip = f"conjunto_de_datos/conjunto_de_datos_ageb_urbana_{estado_str}_cpv2020.csv"
+            csv_path_in_zip = os.path.join(folder_in_zip, csv_in_zip)
+
+            # Extraer únicamente el archivo CSV de datos
+            download_utils.extract_zip(censo_zip_path, config.CENSO_CSV_DIR, specific_files=[csv_path_in_zip])
             
-            # Encontrar el CSV extraído y convertirlo a Parquet
-            csv_files = glob.glob(os.path.join(censo_extract_path, '**', '*.csv'), recursive=True)
-            if csv_files:
-                csv_path = csv_files[0]
+            # Convertir el CSV extraído a Parquet
+            extracted_csv_path = os.path.join(config.CENSO_CSV_DIR, csv_path_in_zip)
+            if os.path.exists(extracted_csv_path):
                 parquet_path = os.path.join(config.CENSO_PARQUET_DIR, f'{estado_str}_censo.parquet')
-                convert_censo_csv_to_parquet(csv_path, parquet_path)
+                convert_censo_csv_to_parquet(extracted_csv_path, parquet_path)
 
     print("\n--- Procesamiento de Censo y Marco Geoestadístico Finalizado ---")
