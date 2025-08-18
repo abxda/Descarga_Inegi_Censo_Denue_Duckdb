@@ -86,10 +86,11 @@ def process_censo_y_marco_geo():
         censo_zip_path = download_utils.download_file(censo_url, config.CENSO_RAW_ZIP_DIR)
 
         if censo_zip_path:
-            # Construir la ruta relativa esperada del archivo CSV de datos principal
+            # Construir la ruta relativa esperada del archivo CSV de datos principal.
+            # Se usa / porque el estándar ZIP siempre usa forward slashes, independientemente del SO.
             folder_in_zip = f"ageb_mza_urbana_{estado_str}_cpv2020"
             csv_in_zip = f"conjunto_de_datos/conjunto_de_datos_ageb_urbana_{estado_str}_cpv2020.csv"
-            csv_path_in_zip = os.path.join(folder_in_zip, csv_in_zip)
+            csv_path_in_zip = f"{folder_in_zip}/{csv_in_zip}"
 
             # Extraer únicamente el archivo CSV de datos
             download_utils.extract_zip(censo_zip_path, config.CENSO_CSV_DIR, specific_files=[csv_path_in_zip])
