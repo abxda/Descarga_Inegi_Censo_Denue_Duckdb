@@ -1,0 +1,27 @@
+# Archivos y directorios generados por Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Entornos virtuales
+venv/
+env/
+
+# Directorios de datos y resultados
+/data/
+/output/
+
+# Archivos de bases de datos locales
+*.duckdb
+*.duckdb.wal
+
+# Reportes y logs
+*.log
+*.csv
+*.parquet
+*.geoparquet
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
