@@ -25,10 +25,9 @@ Todas las geometrías en la base de datos final están estandarizadas en la proy
 
 ## 4. Instrucciones de Uso
 
-1.  **Clonar el repositorio (o descargar los archivos en la estructura generada) y navegar al directorio:**
+1.  **Clonar el repositorio y navegar al directorio:**
     ```bash
-    # Reemplaza <URL_DEL_REPOSITORIO> con la URL real si clonas el proyecto
-    # git clone <URL_DEL_REPOSITORIO>
+    git clone https://github.com/abxda/Descarga_Inegi_Censo_Denue_Duckdb.git
     cd Descarga_Inegi_Censo_Denue_Duckdb
     ```
 
