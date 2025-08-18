@@ -15,6 +15,9 @@ def build_database():
     con = duckdb.connect(config.DB_PATH)
     con.execute("INSTALL spatial; LOAD spatial;")
 
+    # Limitar la memoria a 10GB para evitar errores en sistemas con poca RAM
+    con.execute("PRAGMA memory_limit='10GB'")
+
     # --- 1. Procesar y Cargar DENUE ---
     print("\nPaso 1/3: Creando tabla 'denue'...")
     denue_geoparquet_files = glob.glob(os.path.join(config.DENUE_GEOPARQUET_DIR, '*.geoparquet'))
