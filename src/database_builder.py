@@ -24,11 +24,12 @@ def build_database():
         df_denue = gdf_denue.drop(columns=['geometry'])
         
         con.execute("CREATE TEMP TABLE temp_denue_wkt AS SELECT * FROM df_denue")
-        con.execute("""
+        sql_create_denue = """
             CREATE TABLE denue AS 
             SELECT *, ST_GeomFromText(geometry_wkt) AS geometry 
             FROM temp_denue_wkt;
-        """)
+        """
+        con.execute(sql_create_denue)
         print("Tabla 'denue' creada exitosamente desde WKT.")
     else:
         print("ADVERTENCIA: No se encontraron archivos GeoParquet de DENUE.")
@@ -45,7 +46,8 @@ def build_database():
         con.execute("CREATE TEMP TABLE temp_manzanas_wkt AS SELECT * FROM df_manzanas")
 
         con.execute(f"CREATE TEMP TABLE temp_censo AS SELECT * FROM read_parquet({censo_parquet_files}, union_by_name=True);")
-        con.execute("""
+        
+        sql_alter_censo = """
             ALTER TABLE temp_censo ADD COLUMN CVEGEO VARCHAR;
             UPDATE temp_censo SET CVEGEO = 
                 LPAD(CAST(ENTIDAD AS VARCHAR), 2, '0') ||
@@ -53,7 +55,8 @@ def build_database():
                 LPAD(CAST(LOC AS VARCHAR), 4, '0') ||
                 AGEB ||
                 LPAD(CAST(MZA AS VARCHAR), 3, '0');
-        ")
+        """
+        con.execute(sql_alter_censo)
 
         cols_to_convert = config.CENSO_COLUMNAS_A_INT
         select_expressions = []
@@ -68,7 +71,7 @@ def build_database():
 
         select_clause = ", ".join(select_expressions)
 
-        con.execute(f"""
+        sql_create_censo_manzanas = f"""
             CREATE TABLE censo_manzanas AS
             SELECT 
                 m.CVEGEO,
@@ -76,7 +79,8 @@ def build_database():
                 {select_clause}
             FROM temp_manzanas_wkt AS m
             LEFT JOIN temp_censo AS c ON m.CVEGEO = c.CVEGEO;
-        """)
+        """
+        con.execute(sql_create_censo_manzanas)
         print("Tabla 'censo_manzanas' creada exitosamente desde WKT.")
     else:
         print("ADVERTENCIA: No se encontraron archivos Parquet de Censo o GeoParquet de Manzanas.")
