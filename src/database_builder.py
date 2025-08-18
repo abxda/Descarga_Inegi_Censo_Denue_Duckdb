@@ -20,7 +20,11 @@ def build_database():
     denue_geoparquet_files = glob.glob(os.path.join(config.DENUE_GEOPARQUET_DIR, '*.geoparquet'))
     if denue_geoparquet_files:
         # DuckDB puede leer una lista de archivos parquet directamente
-        con.execute(f"CREATE TABLE denue AS SELECT * FROM read_parquet({denue_geoparquet_files}, union_by_name=True);")
+        # Se aplica ST_FlipCoordinates para corregir el orden de los ejes (lat, lon) -> (lon, lat)
+        con.execute(f"""CREATE TABLE denue AS 
+            SELECT *, ST_FlipCoordinates(geometry) AS geometry 
+            FROM read_parquet({denue_geoparquet_files}, union_by_name=True);
+        """)
         print("Tabla 'denue' creada exitosamente.")
     else:
         print("ADVERTENCIA: No se encontraron archivos GeoParquet de DENUE.")
@@ -63,12 +67,12 @@ def build_database():
 
         select_clause = ", ".join(select_expressions)
 
-        # Crear la tabla final uniendo censo y manzanas, y aplicando la limpieza
+        # Crear la tabla final uniendo censo y manzanas, aplicando la limpieza y corrigiendo la geometría
         con.execute(f"""
             CREATE TABLE censo_manzanas AS
             SELECT 
                 m.CVEGEO,
-                m.geometry,
+                ST_FlipCoordinates(m.geometry) AS geometry,
                 {select_clause}
             FROM temp_manzanas AS m
             LEFT JOIN temp_censo AS c ON m.CVEGEO = c.CVEGEO;
