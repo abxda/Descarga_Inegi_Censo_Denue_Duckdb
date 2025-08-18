@@ -19,6 +19,13 @@ def build_database():
     print("\nPaso 1/3: Creando tabla 'denue'...")
     denue_geoparquet_files = glob.glob(os.path.join(config.DENUE_GEOPARQUET_DIR, '*.geoparquet'))
     if denue_geoparquet_files:
+        # Estrategia de carga robusta para geometrías:
+        # 1. Cargar GeoParquet en un GeoDataFrame de GeoPandas.
+        # 2. Convertir la columna de geometría a texto WKT (Well-Known Text).
+        # 3. Cargar el DataFrame (sin la geometría original) en una tabla temporal de DuckDB.
+        # 4. Crear la tabla final usando ST_GeomFromText para que DuckDB reconstruya la geometría
+        #    a partir del WKT. Esto evita problemas de interpretación del formato binario WKB
+        #    entre la escritura de GeoPandas y la lectura de DuckDB.
         gdf_denue = gpd.read_parquet(denue_geoparquet_files)
         gdf_denue['geometry_wkt'] = gdf_denue.geometry.to_wkt()
         df_denue = gdf_denue.drop(columns=['geometry'])
@@ -40,6 +47,7 @@ def build_database():
     mg_geoparquet_files = glob.glob(os.path.join(config.MARCO_GEO_GEOPARQUET_DIR, '*.geoparquet'))
 
     if censo_parquet_files and mg_geoparquet_files:
+        # Se aplica la misma estrategia de carga robusta (WKT) para las geometrías de las manzanas.
         gdf_manzanas = gpd.read_parquet(mg_geoparquet_files)
         gdf_manzanas['geometry_wkt'] = gdf_manzanas.geometry.to_wkt()
         df_manzanas = gdf_manzanas.drop(columns=['geometry'])

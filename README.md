@@ -51,12 +51,6 @@ Todas las geometrías en la base de datos final están estandarizadas en la proy
     ```
 
 4.  **Ejecutar el script principal:**
-    ```bash
-    python main.py
-    ```
-    El script comenzará el proceso de descarga y procesamiento. Puede tardar un tiempo considerable la primera vez que se ejecuta, dependiendo de la velocidad de la conexión a internet.
-
-4.  **Resultado Final:**
     Una vez que el script finalice, encontrarás la base de datos en la siguiente ruta:
     `output/censo_denue.duckdb`
 

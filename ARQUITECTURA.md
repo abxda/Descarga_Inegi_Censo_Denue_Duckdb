@@ -43,8 +43,11 @@ El flujo de datos general sigue estos pasos:
 
 - **`database_builder.py`**: 
   - Se encarga de la fase final: la construcción de la base de datos DuckDB.
-  - Crea la conexión a la base de datos.
-  - Carga los datos desde los archivos Parquet y GeoParquet intermedios.
+  - Para evitar problemas de interpretación de geometrías entre librerías, implementa una estrategia robusta:
+    1. Lee los archivos GeoParquet con GeoPandas.
+    2. Convierte la columna de geometría a su representación de texto **WKT (Well-Known Text)**.
+    3. Carga este DataFrame (con la geometría como texto) en una tabla temporal en DuckDB.
+    4. Crea la tabla final utilizando la función `ST_GeomFromText()` de la extensión espacial de DuckDB. Esto reconstruye la geometría de forma nativa y correcta a partir del texto WKT, asegurando la máxima compatibilidad.
   - Realiza la unión de los datos del censo con las geometrías de las manzanas.
   - Ejecuta las sentencias SQL para limpiar los tipos de datos (convirtiendo texto a numérico).
   - Consolida las tablas finales (`censo_manzanas` y `denue`).
